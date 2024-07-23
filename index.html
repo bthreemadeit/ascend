@@ -6,70 +6,80 @@
     <title>Калькулятор периодизации</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-y: auto;
         }
         .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            box-sizing: border-box;
         }
         h1 {
-            color: #333;
+            color: #1a1a1a;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         label {
             display: block;
-            margin-top: 10px;
+            margin-top: 20px;
+            font-weight: 600;
+            color: #555;
         }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
+        input, select, button {
+            width: calc(100% - 16px);
+            padding: 10px 8px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
         }
         button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
-            margin-top: 20px;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #0056b3;
         }
         #result {
             margin-top: 20px;
+            text-align: center;
         }
         table {
-            width: 100%;
+            margin: 0 auto;
             border-collapse: collapse;
             margin-top: 20px;
+            width: 100%;
         }
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #eee;
         }
         th, td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #f1f1f1;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Калькулятор периодизации</h1>
-        <label for="oneRepMax">Ваш одноповторный максимум (1RM) в кг:</label>
+        <label for="oneRepMax">Одноповторный максимум (1ПМ), кг:</label>
         <input type="number" id="oneRepMax" required>
         
         <label for="weeks">Количество недель:</label>
@@ -86,7 +96,7 @@
             <option value="block">Блочная</option>
         </select>
         
-        <button onclick="generateProgram()">Сгенерировать программу</button>
+        <button onclick="generateProgram()">Составить программу</button>
         
         <div id="result"></div>
     </div>
@@ -208,7 +218,7 @@
                     <thead>
                         <tr>
                             <th>Неделя</th>
-                            <th>Процент от 1RM</th>
+                            <th>Процент от 1ПМ</th>
                             <th>Нагрузка (кг)</th>
                             <th>Сеты</th>
                             <th>Повторения</th>
