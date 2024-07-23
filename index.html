@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор периодизации</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Калькулятор периодизации</h1>
+        <label for="oneRepMax">Ваш одноповторный максимум (1RM) в кг:</label>
+        <input type="number" id="oneRepMax" required>
+        
+        <label for="weeks">Количество недель:</label>
+        <select id="weeks">
+            <option value="4">4 недели</option>
+            <option value="8">8 недель</option>
+            <option value="12">12 недель</option>
+        </select>
+        
+        <label for="periodizationType">Тип периодизации:</label>
+        <select id="periodizationType">
+            <option value="linear">Линейная</option>
+            <option value="wave">Волновая</option>
+            <option value="block">Блочная</option>
+        </select>
+        
+        <button onclick="generateProgram()">Сгенерировать программу</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        class PeriodizationCalculator {
+            constructor(oneRepMax) {
+                this.oneRepMax = oneRepMax;
+            }
+            
+            calculateLoad(percentage) {
+                return Math.ceil(this.oneRepMax * percentage / 100);
+            }
+            
+            generateLinearPeriodization(weeks) {
+                let program = [];
+                const startPercentage = 65;
+                const increment = 5;
+                
+                for (let week = 1; week <= weeks; week++) {
+                    const cycleWeek = (week - 1) % 8 + 1;
+                    let percentage, sets, reps;
+                    
+                    if (cycleWeek <= 6) {
+                        percentage = startPercentage + (cycleWeek - 1) * increment;
+                        sets = 4;
+                        reps = 12 - (cycleWeek - 1) * 2;
+                    } else if (cycleWeek === 7) {
+                        percentage = 75;  // Неделя разгрузки
+                        sets = 3;
+                        reps = 8;
+                    } else {
+                        percentage = 95;  // Пиковая нагрузка
+                        sets = 2;
+                        reps = 1;
+                    }
+                    
+                    const load = this.calculateLoad(percentage);
+                    program.push({week, percentage, load, sets, reps});
+                }
+                
+                return program;
+            }
+            
+            generateWavePeriodization(weeks) {
+                let program = [];
+                const percentages = [70, 80, 60, 75];
+                
+                for (let week = 1; week <= weeks; week++) {
+                    const cycleWeek = (week - 1) % 4;
+                    const percentage = percentages[cycleWeek];
+                    const load = this.calculateLoad(percentage);
+                    const sets = 4;
+                    const reps = percentage < 70 ? 12 : (percentage < 80 ? 8 : 6);
+                    
+                    program.push({week, percentage, load, sets, reps});
+                }
+                
+                return program;
+            }
+            
+            generateBlockPeriodization(weeks) {
+                let program = [];
+                const blocks = [
+                    {name: 'Гипертрофия', percentage: 70, sets: 4, reps: 10},
+                    {name: 'Сила', percentage: 85, sets: 5, reps: 5},
+                    {name: 'Выносливость', percentage: 60, sets: 3, reps: 15},
+                    {name: 'Пиковая нагрузка', percentage: 90, sets: 6, reps: 3}
+                ];
+                
+                for (let week = 1; week <= weeks; week++) {
+                    const cycleWeek = (week - 1) % 4;
+                    const block = blocks[cycleWeek];
+                    const percentage = block.percentage + (week > 4 ? 2 : 0);  // Увеличиваем на 2% во втором цикле
+                    const load = this.calculateLoad(percentage);
+                    
+                    program.push({
+                        week,
+                        block: block.name,
+                        percentage,
+                        load,
+                        sets: block.sets,
+                        reps: block.reps
+                    });
+                }
+                
+                return program;
+            }
+            
+            generateProgram(periodizationType, weeks) {
+                switch (periodizationType) {
+                    case 'linear':
+                        return this.generateLinearPeriodization(weeks);
+                    case 'wave':
+                        return this.generateWavePeriodization(weeks);
+                    case 'block':
+                        return this.generateBlockPeriodization(weeks);
+                    default:
+                        throw new Error("Неизвестный тип периодизации");
+                }
+            }
+        }
+
+        function generateProgram() {
+            const oneRepMax = parseFloat(document.getElementById('oneRepMax').value);
+            const weeks = parseInt(document.getElementById('weeks').value);
+            const periodizationType = document.getElementById('periodizationType').value;
+            
+            if (isNaN(oneRepMax) || oneRepMax <= 0) {
+                alert("Пожалуйста, введите корректное значение для одноповторного максимума.");
+                return;
+            }
+            
+            const calc = new PeriodizationCalculator(oneRepMax);
+            const program = calc.generateProgram(periodizationType, weeks);
+            
+            let result = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Неделя</th>
+                            <th>Процент от 1RM</th>
+                            <th>Нагрузка (кг)</th>
+                            <th>Сеты</th>
+                            <th>Повторения</th>
+                            ${periodizationType === 'block' ? '<th>Блок</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const week of program) {
+                result += `
+                    <tr>
+                        <td>${week.week}</td>
+                        <td>${week.percentage}%</td>
+                        <td>${week.load} кг</td>
+                        <td>${week.sets}</td>
+                        <td>${week.reps}</td>
+                        ${periodizationType === 'block' ? `<td>${week.block}</td>` : ''}
+                    </tr>
+                `;
+            }
+            
+            result += `
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('result').innerHTML = result;
+        }
+    </script>
+</body>
+</html>
